@@ -1,0 +1,31 @@
+{
+  "name": "finnwiel/shazzoo-mobile",
+  "description": "A Laravel Package for shazzoo notifications mobile app",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Finn van de Wiel",
+      "email": "finnvandewiel01@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "FinnWiel\\ShazzooMobile\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "FinnWiel\\ShazzooMobile\\ShazzooMobileServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "illuminate/support": "^9.0|^10.0|^11.0",
+    "spatie/laravel-package-tools": "^1.92"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

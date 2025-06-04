@@ -4,11 +4,11 @@ namespace FinnWiel\ShazzooMobile\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class NotificationType extends Model
+class ExpoToken extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['user_id', 'token', 'device_type'];
 
-    public function devicePreferences()
+    public function preferences()
     {
         return $this->hasMany(DeviceNotificationPreference::class);
     }
