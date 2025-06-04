@@ -11,7 +11,8 @@
   ],
   "autoload": {
     "psr-4": {
-      "FinnWiel\\ShazzooMobile\\": "src/"
+      "FinnWiel\\ShazzooMobile\\": "src/",
+      "FinnWiel\\ShazzooMobile\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "extra": {

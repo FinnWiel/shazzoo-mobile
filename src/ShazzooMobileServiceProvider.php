@@ -2,8 +2,10 @@
 
 namespace FinnWiel\ShazzooMobile;
 
+use FinnWiel\ShazzooMobile\Console\Commands\SendNotification;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 
 class ShazzooMobileServiceProvider extends PackageServiceProvider
 {
@@ -12,11 +14,20 @@ class ShazzooMobileServiceProvider extends PackageServiceProvider
         $package
             ->name('shazzoo-mobile')
             ->hasConfigFile()
+            ->hasCommands([
+                SendNotification::class,
+            ])
             ->hasMigrations([
                 'create_notification_types_table',
                 'create_expo_tokens_table',
                 'create_device_notification_preferences_table',
             ])
+            ->hasInstallCommand(function (InstallCommand $command) {
+                $command
+                    ->publishConfigFile()
+                    ->publishMigrations()
+                    ->askToRunMigrations();
+            })
             ->hasRoutes('api');
     }
 }
