@@ -2,6 +2,7 @@
 
 use FinnWiel\ShazzooMobile\Controllers\Api\AuthController;
 use FinnWiel\ShazzooMobile\Controllers\Api\PreferenceController;
+use FinnWiel\ShazzooMobile\Models\NotificationType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,10 @@ Route::prefix('api')->middleware('api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/notification-preferences', [PreferenceController::class, 'show']);
         Route::post('/notification-preferences', [PreferenceController::class, 'update']);
+    });
+
+    Route::get('/notification-types', function (Request $request) {
+        return response()->json(NotificationType::all(['id', 'name', 'description']));
     });
 
     Route::middleware(['auth:sanctum'])->get('/me', function (Request $request) {
