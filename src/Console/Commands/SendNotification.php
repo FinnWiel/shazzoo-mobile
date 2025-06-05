@@ -5,17 +5,19 @@ namespace FinnWiel\ShazzooMobile\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\User;
 use FinnWiel\ShazzooMobile\Models\ExpoToken;
+use FinnWiel\ShazzooMobile\Models\NotificationType;
 use Illuminate\Support\Facades\Http;
 
 class SendNotification extends Command
 {
     protected $signature = 'shazzoo:notify
                             {--user= : Email or ID of a user}
-                            {--type= : Notification type slug (e.g. calls, reminders)}
+                            {--type= : Notification type slug (e.g. new_message)}
                             {--title= : Notification title}
-                            {--body= : Notification body}';
+                            {--body= : Notification body}
+                            {--data= : JSON payload to send (optional)}';
 
-    protected $description = 'Send an Expo push notification to users/devices respecting notification preferences';
+    protected $description = 'Send an Expo push notification to a user or all users with preferences respected';
 
     public function handle()
     {
@@ -24,11 +26,13 @@ class SendNotification extends Command
         $type = $this->option('type');
         $title = $this->option('title', 'Notification');
         $body = $this->option('body', '');
+        $extraData = json_decode($this->option('data', '{}'), true);
 
         if (! $type) {
             return $this->error('Please specify a notification type with --type');
         }
 
+        // If user option is provided, send only to that user (filtered tokens)
         if ($this->option('user')) {
             $user = User::where('email', $this->option('user'))
                 ->orWhere('id', $this->option('user'))
@@ -38,8 +42,9 @@ class SendNotification extends Command
                 return $this->error("User not found.");
             }
 
+            // Get tokens for this user with the notification type enabled
             $expoTokens = $user->expoTokens()
-                ->whereHas('notificationPreferences', function ($query) use ($type) {
+                ->whereHas('preferences', function ($query) use ($type) {
                     $query->where('enabled', true)
                         ->whereHas('notificationType', function ($q) use ($type) {
                             $q->where('name', $type);
@@ -47,7 +52,8 @@ class SendNotification extends Command
                 })
                 ->get();
         } else {
-            $expoTokens = ExpoToken::whereHas('notificationPreferences', function ($query) use ($type) {
+            // Get all tokens with notification type enabled
+            $expoTokens = ExpoToken::whereHas('preferences', function ($query) use ($type) {
                 $query->where('enabled', true)
                     ->whereHas('notificationType', function ($q) use ($type) {
                         $q->where('name', $type);
@@ -60,12 +66,12 @@ class SendNotification extends Command
         }
 
         foreach ($expoTokens as $token) {
-            $payload = [
+            $payload = array_merge([
                 'to' => $token->token,
                 'title' => $title,
                 'body' => $body,
                 'sound' => 'default',
-            ];
+            ], $extraData);
 
             Http::post('https://exp.host/--/api/v2/push/send', $payload);
             $this->line("✓ Sent to {$token->token}");
