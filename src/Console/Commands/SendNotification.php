@@ -4,70 +4,71 @@ namespace FinnWiel\ShazzooMobile\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\User;
-use FinnWiel\ShazzooMobile\Models\NotificationType;
+use FinnWiel\ShazzooMobile\Models\ExpoToken;
 use Illuminate\Support\Facades\Http;
 
 class SendNotification extends Command
 {
     protected $signature = 'shazzoo:notify
                             {--user= : Email or ID of a user}
-                            {--type= : Notification type slug (e.g. new_message)}
+                            {--type= : Notification type slug (e.g. calls, reminders)}
                             {--title= : Notification title}
-                            {--body= : Notification body}
-                            {--data= : JSON payload to send (optional)}';
+                            {--body= : Notification body}';
 
-    protected $description = 'Send an Expo push notification to a user or all users with preferences respected';
+    protected $description = 'Send an Expo push notification to users/devices respecting notification preferences';
 
     public function handle()
     {
         $this->info('Sending notifications...');
 
-        $users = collect();
+        $type = $this->option('type');
+        $title = $this->option('title', 'Notification');
+        $body = $this->option('body', '');
 
-        // Get single user or all
+        if (! $type) {
+            return $this->error('Please specify a notification type with --type');
+        }
+
         if ($this->option('user')) {
             $user = User::where('email', $this->option('user'))
-                        ->orWhere('id', $this->option('user'))
-                        ->first();
+                ->orWhere('id', $this->option('user'))
+                ->first();
 
             if (! $user) {
                 return $this->error("User not found.");
             }
 
-            $users->push($user);
+            $expoTokens = $user->expoTokens()
+                ->whereHas('notificationPreferences', function ($query) use ($type) {
+                    $query->where('enabled', true)
+                        ->whereHas('notificationType', function ($q) use ($type) {
+                            $q->where('name', $type);
+                        });
+                })
+                ->get();
         } else {
-            $users = User::with('expoTokens')->get();
+            $expoTokens = ExpoToken::whereHas('notificationPreferences', function ($query) use ($type) {
+                $query->where('enabled', true)
+                    ->whereHas('notificationType', function ($q) use ($type) {
+                        $q->where('name', $type);
+                    });
+            })->get();
         }
 
-        $type = $this->option('type');
-        $title = $this->option('title', 'Notification');
-        $body = $this->option('body', '');
-        $extraData = json_decode($this->option('data', '{}'), true);
+        if ($expoTokens->isEmpty()) {
+            return $this->info('No devices found with that notification type enabled.');
+        }
 
-        foreach ($users as $user) {
-            foreach ($user->expoTokens as $token) {
-                // Respect per-device preferences
-                if ($type) {
-                    $enabled = $token->notificationPreferences()
-                        ->whereHas('notificationType', fn ($q) => $q->where('name', $type))
-                        ->where('enabled', true)
-                        ->exists();
+        foreach ($expoTokens as $token) {
+            $payload = [
+                'to' => $token->token,
+                'title' => $title,
+                'body' => $body,
+                'sound' => 'default',
+            ];
 
-                    if (! $enabled) {
-                        continue;
-                    }
-                }
-
-                $payload = array_merge([
-                    'to' => $token->token,
-                    'title' => $title,
-                    'body' => $body,
-                    'sound' => 'default',
-                ], $extraData);
-
-                Http::post('https://exp.host/--/api/v2/push/send', $payload);
-                $this->line("✓ Sent to {$token->token}");
-            }
+            Http::post('https://exp.host/--/api/v2/push/send', $payload);
+            $this->line("✓ Sent to {$token->token}");
         }
 
         $this->info("Done.");

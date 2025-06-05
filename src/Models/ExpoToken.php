@@ -8,7 +8,7 @@ class ExpoToken extends Model
 {
     protected $fillable = ['user_id', 'token', 'device_type'];
 
-    public function preferences()
+    public function notificationPreferences()
     {
         return $this->hasMany(DeviceNotificationPreference::class);
     }
