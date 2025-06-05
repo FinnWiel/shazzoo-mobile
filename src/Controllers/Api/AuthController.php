@@ -18,6 +18,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
             'expo_token' => 'required|string',
+            'device_type' => 'sometimes|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -31,10 +32,19 @@ class AuthController extends Controller
             ->where('user_id', '!=', $user->id)
             ->delete();
 
+        $expoTokenData = [
+            'token' => $request->expo_token,
+            'user_id' => $user->id,
+        ];
+
+        if ($request->has('device_type')) {
+            $expoTokenData['device_type'] = $request->device_type;
+        }
+
         // Update or create expo token for current user
         $expoToken = ExpoToken::updateOrCreate(
             ['token' => $request->expo_token, 'user_id' => $user->id],
-            []
+            $expoTokenData
         );
 
         // Create Sanctum token
