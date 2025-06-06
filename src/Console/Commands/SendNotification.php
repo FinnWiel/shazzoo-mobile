@@ -44,7 +44,7 @@ class SendNotification extends Command
 
             // Get tokens for this user with the notification type enabled
             $expoTokens = $user->expoTokens()
-                ->whereHas('preferences', function ($query) use ($type) {
+                ->whereHas('notificationPreferences', function ($query) use ($type) {
                     $query->where('enabled', true)
                         ->whereHas('notificationType', function ($q) use ($type) {
                             $q->where('name', $type);
@@ -53,7 +53,7 @@ class SendNotification extends Command
                 ->get();
         } else {
             // Get all tokens with notification type enabled
-            $expoTokens = ExpoToken::whereHas('preferences', function ($query) use ($type) {
+            $expoTokens = ExpoToken::whereHas('notificationPreferences', function ($query) use ($type) {
                 $query->where('enabled', true)
                     ->whereHas('notificationType', function ($q) use ($type) {
                         $q->where('name', $type);
@@ -66,12 +66,19 @@ class SendNotification extends Command
         }
 
         foreach ($expoTokens as $token) {
-            $payload = array_merge([
+            $payload = [
                 'to' => $token->token,
                 'title' => $title,
                 'body' => $body,
                 'sound' => 'default',
-            ], $extraData);
+                "priority" => "high",
+                "channelId"=> "default",
+                'android' => [
+                    'smallIcon' => 'notification-icon',  
+                    'color' => '#ed751f',  
+                ],
+
+            ];
 
             Http::post('https://exp.host/--/api/v2/push/send', $payload);
             $this->line("✓ Sent to {$token->token}");

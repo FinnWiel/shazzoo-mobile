@@ -2,6 +2,10 @@
 
 A Laravel package to manage Expo push notifications with per-device preferences for the Shazzoo mobile app.
 
+[![Packagist Version](https://img.shields.io/packagist/v/finnwiel/shazzoo-mobile.svg)](https://packagist.org/packages/finnwiel/shazzoo-mobile)
+![Laravel](https://img.shields.io/badge/laravel-12.x-red)
+![PHP](https://img.shields.io/badge/php-^8.1-blue)
+
 ## Features
 
 - Authenticate users and associate Expo push tokens per device.
@@ -37,12 +41,12 @@ php artisan shazzoo:notify
 ```
 The command also accepts some tags:
 
-| Tag       | Description                   | 
-|-----------|----------------------------|
-| `--user=` | Takes in the `email` or `id` of a user | 
+| Tag       | Description                                      | 
+|-----------|--------------------------------------------------|
+| `--user=` | Takes in the `email` or `id` of a user           | 
 | `--type=` | Sets the type of notificaition you want to send. |
-| `--title=`| Sets the title of the notification |
-| `--body=` | Sets the body of the notification |
+| `--title=`| Sets the title of the notification               |
+| `--body=` | Sets the body of the notification                |
 
 
 #### Notification Types
@@ -53,13 +57,13 @@ This table takes in a unique name and a description of the notification.
 
 ## API Endpoints
 
-| Method | Endpoint                   | Description                          | Auth Required |
+| Method | Endpoint                   | Description                        | Auth Required |
 |--------|----------------------------|------------------------------------|---------------|
 | POST   | `/api/login`               | Login and register Expo token      | No            |
 | POST   | `/api/logout`              | Logout and remove Expo token       | Yes           |
-| GET    | `/api/notification-preferences` | Get notification preferences       | Yes           |
-| POST   | `/api/notification-preferences`| Update notification preferences    | Yes           |
-| GET    | `/api/notification-types` | Get all available notification types | Yes         |
+| GET    | `/api/notification-preferences` | Get notification preferences  | Yes           |
+| POST   | `/api/notification-preferences`| Update notification preferences| Yes           |
+| GET    | `/api/notification-types` | Get all available notification types| Yes           |
 
 ## License
 

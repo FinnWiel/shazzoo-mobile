@@ -23,8 +23,20 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if (! $user) {
+            return response()->json([
+                'errors' => [
+                    'email' => ['We couldn’t find a user with that email address.'],
+                ]
+            ], 422);
+        }
+
+        if (! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'errors' => [
+                    'password' => ['Incorrect password.'],
+                ]
+            ], 422);
         }
 
         // Remove expo token from other users if it exists elsewhere
