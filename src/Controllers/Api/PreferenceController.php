@@ -16,7 +16,7 @@ class PreferenceController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $tokenValue = $request->header('Expo-Token') ?? $request->input('token');
+        $tokenValue = $request->header('Device-Token') ?? $request->input('token');
 
         if (!$tokenValue) {
             return response()->json(['message' => 'Token required'], 400);
@@ -58,7 +58,7 @@ class PreferenceController extends Controller
             }
         }
 
-        $tokenValue = $request->header('Expo-Token') ?? $request->input('token');
+        $tokenValue = $request->header('Device-Token') ?? $request->input('token');
 
         if (!$tokenValue) {
             return response()->json(['message' => 'Token required'], 400);

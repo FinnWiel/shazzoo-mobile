@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\User;
 use FinnWiel\ShazzooMobile\Models\ExpoToken;
 use FinnWiel\ShazzooMobile\Models\NotificationType;
+use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
 use Illuminate\Support\Facades\Http;
 
 class SendNotification extends Command
@@ -53,7 +54,7 @@ class SendNotification extends Command
                 ->get();
         } else {
             // Get all tokens with notification type enabled
-            $expoTokens = ExpoToken::whereHas('notificationPreferences', function ($query) use ($type) {
+            $expoTokens = RegisteredDevice::whereHas('notificationPreferences', function ($query) use ($type) {
                 $query->where('enabled', true)
                     ->whereHas('notificationType', function ($q) use ($type) {
                         $q->where('name', $type);
