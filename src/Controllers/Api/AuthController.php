@@ -5,10 +5,11 @@ namespace FinnWiel\ShazzooMobile\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use FinnWiel\ShazzooMobile\Models\DeviceNotificationPreference;
-use FinnWiel\ShazzooMobile\Models\ExpoToken;
 use FinnWiel\ShazzooMobile\Models\NotificationType;
+use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -17,57 +18,48 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'expo_token' => 'required|string',
-            'device_type' => 'sometimes|string',
+            'token' => 'sometimes|nullable|string',
+            'device_type' => 'sometimes|nullable|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
-                'errors' => [
-                    'email' => ['We couldn’t find a user with that email address.'],
-                ]
+                'errors' => ['email' => ['Invalid credentials.']],
             ], 422);
         }
 
-        if (! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'errors' => [
-                    'password' => ['Incorrect password.'],
-                ]
-            ], 422);
-        }
-
-        // Remove expo token from other users if it exists elsewhere
-        ExpoToken::where('token', $request->expo_token)
-            ->where('user_id', '!=', $user->id)
-            ->delete();
-
-        $expoTokenData = [
-            'token' => $request->expo_token,
+        // Register the device
+        $deviceData = [
             'user_id' => $user->id,
+            'device_type' => $request->input('device_type', 'unknown'),
         ];
 
-        if ($request->has('device_type')) {
-            $expoTokenData['device_type'] = $request->device_type;
+        if ($request->filled('token')) {
+            $deviceData['token'] = $request->token;
+
+            // Clean up this token from other users
+            RegisteredDevice::where('token', $request->token)
+                ->where('user_id', '!=', $user->id)
+                ->delete();
         }
 
-        // Update or create expo token for current user
-        $expoToken = ExpoToken::updateOrCreate(
-            ['token' => $request->expo_token, 'user_id' => $user->id],
-            $expoTokenData
+        $registeredDevice = RegisteredDevice::updateOrCreate(
+            ['token' => $request->token, 'user_id' => $user->id],
+            $deviceData
         );
 
-        // Create Sanctum token
+        // Create the token
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Create or update notification preferences
         $notificationTypes = NotificationType::all();
-
         foreach ($notificationTypes as $type) {
+            Log::info($registeredDevice);
             DeviceNotificationPreference::updateOrCreate(
                 [
-                    'expo_token_id' => $expoToken->id,
+                    'device_id' => $registeredDevice->id,
                     'notification_type_id' => $type->id,
                 ],
                 ['enabled' => true]
@@ -84,17 +76,17 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->validate([
-            'expo_token' => 'required|string',
+            'token' => 'required|string',
         ]);
 
         $user = $request->user();
 
-        // Remove user's expo token record if it matches
-        ExpoToken::where('user_id', $user->id)
-            ->where('token', $request->expo_token)
+        // Remove user's token record if it matches
+        RegisteredDevice::where('user_id', $user->id)
+            ->where('token', $request->token)
             ->delete();
 
-        // Revoke all tokens (or current token only)
+        // Revoke the current token
         $currentTokenId = $request->user()->currentAccessToken()->id;
         $user->tokens()->where('id', $currentTokenId)->delete();
 

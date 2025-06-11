@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeviceNotificationPreference extends Model
 {
-    protected $fillable = ['expo_token_id', 'notification_type_id', 'enabled'];
+    protected $fillable = ['device_id', 'notification_type_id', 'enabled'];
 
-    public function expoToken()
+    public function device()
     {
-        return $this->belongsTo(ExpoToken::class);
+        return $this->belongsTo(RegisteredDevice::class);
     }
 
     public function notificationType()

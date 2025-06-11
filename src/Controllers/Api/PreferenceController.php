@@ -4,8 +4,8 @@ namespace FinnWiel\ShazzooMobile\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use FinnWiel\ShazzooMobile\Models\DeviceNotificationPreference;
-use FinnWiel\ShazzooMobile\Models\ExpoToken;
 use FinnWiel\ShazzooMobile\Models\NotificationType;
+use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
 use Illuminate\Http\Request;
 
 class PreferenceController extends Controller
@@ -16,36 +16,31 @@ class PreferenceController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $expoTokenValue = $request->header('Expo-Token') ?? $request->input('expo_token');
+        $tokenValue = $request->header('Expo-Token') ?? $request->input('token');
 
-        if (!$expoTokenValue) {
-            return response()->json(['message' => 'Expo token required'], 400);
+        if (!$tokenValue) {
+            return response()->json(['message' => 'Token required'], 400);
         }
 
-        // Find the ExpoToken record for this user and token
-        $expoToken = ExpoToken::where('user_id', $user->id)
-            ->where('token', $expoTokenValue)
+        $device = RegisteredDevice::where('user_id', $user->id)
+            ->where('token', $tokenValue)
             ->first();
 
-        if (! $expoToken) {
-            return response()->json(['message' => 'Expo token not found for user'], 404);
+        if (! $device) {
+            return response()->json(['message' => 'Token not found for user'], 404);
         }
 
-        // Get all notification types
         $notificationTypes = NotificationType::all();
 
-        // Get preferences for this expo token indexed by notification_type_id
-        $preferences = DeviceNotificationPreference::where('expo_token_id', $expoToken->id)
+        $preferences = DeviceNotificationPreference::where('device_id', $device->id)
             ->pluck('enabled', 'notification_type_id');
 
-        // Map notification type names to enabled/disabled (default false)
         $result = $notificationTypes->mapWithKeys(function ($type) use ($preferences) {
             return [$type->name => (bool) ($preferences[$type->id] ?? false)];
         });
 
         return response()->json($result);
     }
-
 
     /**
      * Update the authenticated user's notification preferences.
@@ -55,28 +50,26 @@ class PreferenceController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
-
         $data = $request->all();
 
-        // Validate that each value is boolean
         foreach ($data as $key => $value) {
             if (!is_bool($value)) {
                 return response()->json(['message' => "The value for {$key} must be boolean."], 422);
             }
         }
 
-        $expoTokenValue = $request->header('Expo-Token') ?? $request->input('expo_token');
+        $tokenValue = $request->header('Expo-Token') ?? $request->input('token');
 
-        if (!$expoTokenValue) {
-            return response()->json(['message' => 'Expo token required'], 400);
+        if (!$tokenValue) {
+            return response()->json(['message' => 'Token required'], 400);
         }
 
-        $expoToken = ExpoToken::where('user_id', $user->id)
-            ->where('token', $expoTokenValue)
+        $device = RegisteredDevice::where('user_id', $user->id)
+            ->where('token', $tokenValue)
             ->first();
 
-        if (! $expoToken) {
-            return response()->json(['message' => 'Expo token not found for user'], 404);
+        if (! $device) {
+            return response()->json(['message' => 'Token not found for user'], 404);
         }
 
         $types = NotificationType::pluck('id', 'name');
@@ -88,17 +81,15 @@ class PreferenceController extends Controller
 
             DeviceNotificationPreference::updateOrCreate(
                 [
-                    'expo_token_id' => $expoToken->id,
+                    'device_id' => $device->id,
                     'notification_type_id' => $types[$typeName],
                 ],
-                ['enabled' => (bool) $enabled]
+                ['enabled' => $enabled]
             );
         }
 
-        // Retrieve updated preferences
         $notificationTypes = NotificationType::all();
-
-        $preferences = DeviceNotificationPreference::where('expo_token_id', $expoToken->id)
+        $preferences = DeviceNotificationPreference::where('device_id', $device->id)
             ->pluck('enabled', 'notification_type_id');
 
         $result = $notificationTypes->mapWithKeys(function ($type) use ($preferences) {
