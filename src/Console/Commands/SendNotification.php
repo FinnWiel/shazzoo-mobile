@@ -4,6 +4,7 @@ namespace FinnWiel\ShazzooMobile\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\User;
+use FinnWiel\ShazzooMobile\Events\NotificationEvent;
 use FinnWiel\ShazzooMobile\Models\ExpoToken;
 use FinnWiel\ShazzooMobile\Models\NotificationType;
 use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
@@ -73,10 +74,10 @@ class SendNotification extends Command
                 'body' => $body,
                 'sound' => 'default',
                 "priority" => "high",
-                "channelId"=> "default",
+                "channelId" => "default",
                 'android' => [
-                    'smallIcon' => 'notification-icon',  
-                    'color' => '#ed751f',  
+                    'smallIcon' => 'notification-icon',
+                    'color' => '#ed751f',
                 ],
 
             ];
@@ -84,6 +85,15 @@ class SendNotification extends Command
             Http::post('https://exp.host/--/api/v2/push/send', $payload);
             $this->line("✓ Sent to {$token->token}");
         }
+
+        event(new NotificationEvent(
+            $type,
+            [
+                'title' => $title,
+                'body' => $body,
+                'extra' => $extraData,
+            ]
+        ));
 
         $this->info("Done.");
     }

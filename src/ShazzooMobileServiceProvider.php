@@ -11,6 +11,16 @@ use Illuminate\Support\ServiceProvider;
 
 class ShazzooMobileServiceProvider extends ServiceProvider
 {
+    public function boot()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/channels.php');
+
+        $this->commands([
+            SendNotification::class,
+        ]);
+    }
+
     public function configurePackage(Package $package): void
     {
         $package
