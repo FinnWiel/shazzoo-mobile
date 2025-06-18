@@ -24,7 +24,7 @@ class ShazzooMobileServiceProvider extends ServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('shazzoo-mobile')
+            ->name('shazzoo-notify')
             ->hasConfigFile()
             ->hasCommands([
                 SendNotification::class,
