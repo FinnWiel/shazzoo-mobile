@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
-use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
+use FinnWiel\ShazzooNotify\Models\RegisteredDevice;
 
 Broadcast::channel('{type}', function ($user, $type, $request) {
     $token = $request->header('Device-Token') ?? $request->input('token');

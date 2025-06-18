@@ -1,6 +1,6 @@
 <?php
 
-namespace FinnWiel\ShazzooMobile\Models;
+namespace FinnWiel\ShazzooNotify\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

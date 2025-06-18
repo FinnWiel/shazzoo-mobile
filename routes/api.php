@@ -1,8 +1,8 @@
 <?php
 
-use FinnWiel\ShazzooMobile\Controllers\Api\AuthController;
-use FinnWiel\ShazzooMobile\Controllers\Api\PreferenceController;
-use FinnWiel\ShazzooMobile\Models\NotificationType;
+use FinnWiel\ShazzooNotify\Controllers\Api\AuthController;
+use FinnWiel\ShazzooNotify\Controllers\Api\PreferenceController;
+use FinnWiel\ShazzooNotify\Models\NotificationType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

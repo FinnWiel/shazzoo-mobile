@@ -1,15 +1,15 @@
 <?php
 
-namespace FinnWiel\ShazzooMobile;
+namespace FinnWiel\ShazzooNotify;
 
-use FinnWiel\ShazzooMobile\Console\Commands\SendNotification;
-use FinnWiel\ShazzooMobile\Console\Commands\SyncNotificationTypes;
+use FinnWiel\ShazzooNotify\Console\Commands\SendNotification;
+use FinnWiel\ShazzooNotify\Console\Commands\SyncNotificationTypes;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Illuminate\Support\ServiceProvider;
 
-class ShazzooMobileServiceProvider extends ServiceProvider
+class ShazzooNotifyServiceProvider extends ServiceProvider
 {
     public function boot()
     {

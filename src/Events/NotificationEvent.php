@@ -1,6 +1,6 @@
 <?php
 
-namespace FinnWiel\ShazzooMobile\Events;
+namespace FinnWiel\ShazzooNotify\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\PrivateChannel;

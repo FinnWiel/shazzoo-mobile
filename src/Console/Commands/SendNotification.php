@@ -1,13 +1,13 @@
 <?php
 
-namespace FinnWiel\ShazzooMobile\Console\Commands;
+namespace FinnWiel\ShazzooNotify\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\User;
-use FinnWiel\ShazzooMobile\Events\NotificationEvent;
-use FinnWiel\ShazzooMobile\Models\ExpoToken;
-use FinnWiel\ShazzooMobile\Models\NotificationType;
-use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
+use FinnWiel\ShazzooNotify\Events\NotificationEvent;
+use FinnWiel\ShazzooNotify\Models\ExpoToken;
+use FinnWiel\ShazzooNotify\Models\NotificationType;
+use FinnWiel\ShazzooNotify\Models\RegisteredDevice;
 use Illuminate\Support\Facades\Http;
 
 class SendNotification extends Command

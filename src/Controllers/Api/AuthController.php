@@ -1,12 +1,12 @@
 <?php
 
-namespace FinnWiel\ShazzooMobile\Controllers\Api;
+namespace FinnWiel\ShazzooNotify\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use FinnWiel\ShazzooMobile\Models\DeviceNotificationPreference;
-use FinnWiel\ShazzooMobile\Models\NotificationType;
-use FinnWiel\ShazzooMobile\Models\RegisteredDevice;
+use FinnWiel\ShazzooNotify\Models\DeviceNotificationPreference;
+use FinnWiel\ShazzooNotify\Models\NotificationType;
+use FinnWiel\ShazzooNotify\Models\RegisteredDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
