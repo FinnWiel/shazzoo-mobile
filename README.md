@@ -8,21 +8,24 @@ A Laravel package to manage Expo push notifications with per-device preferences 
 
 ## Features
 
-- Authenticate users and associate Expo push tokens per device.
-- Manage notification types and device-specific notification preferences.
-- Send notifications respecting user preferences per device.
-- Supports Laravel Sanctum for API authentication.
+- Send push notification to registered phones.
+- Send notifications to registered pc's.
+- Per device preferences for notification's.
+
 
 ## Installation
 ```
 composer require finnwiel/shazzoo-mobile
 ```
+
+#### Publish the migrations
 ```
 php artisan shazzoo-mobile:install
 ```
-You also need to install the api from laravel if you haven't already
+#### Ensure the Laravel API and broadcasting stack are installed:
 ```
 php artisan install:api
+php artisan install:broadcasting
 ```
 ## Usage
 
@@ -30,12 +33,14 @@ php artisan install:api
 
 In the mobile app you can login with any user that has a profile on your laravel website. This package then stores the `Expo token` in a database together with the device type. This expo token is needed to send notifications.
 
+For the desktop app you can also login using a profile that is registered in your app. 
+
 Upon login your prefrences will all be set to `enabled`, if you want to disable them you will need to do so in the mobile app.
 
 
 ### Sending Notifications
 
-- Use the provided Artisan command to send notifications respecting user preferences:
+- Use the provided Artisan command to send notifications:
 ```
 php artisan shazzoo:notify 
 ```
@@ -51,19 +56,12 @@ The command also accepts some tags:
 
 #### Notification Types
 
-You can dconfigure what notification types you have in your applicaiton yourself, all this package does is create the `notification_types` table for you. 
+You can define your own notification types. This package provides a `notification_types` table, where each type includes:
 
-This table takes in a unique name and a description of the notification.
+- A unique name
+- A description
 
-## API Endpoints
-
-| Method | Endpoint                   | Description                        | Auth Required |
-|--------|----------------------------|------------------------------------|---------------|
-| POST   | `/api/login`               | Login and register Expo token      | No            |
-| POST   | `/api/logout`              | Logout and remove Expo token       | Yes           |
-| GET    | `/api/notification-preferences` | Get notification preferences  | Yes           |
-| POST   | `/api/notification-preferences`| Update notification preferences| Yes           |
-| GET    | `/api/notification-types` | Get all available notification types| Yes           |
+These types help organize and filter which notifications are sent and managed.
 
 ## License
 

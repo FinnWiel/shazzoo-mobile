@@ -1,6 +1,6 @@
 {
   "name": "finnwiel/shazzoo-notify",
-  "description": "A Laravel Package for shazzoo notifications mobile app",
+  "description": "A Laravel Package for shazzoo notifications",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -11,14 +11,14 @@
   ],
   "autoload": {
     "psr-4": {
-      "FinnWiel\\ShazzooMobile\\": "src/",
-      "FinnWiel\\ShazzooMobile\\Database\\Seeders\\": "database/seeders/"
+      "FinnWiel\\ShazzooNotify\\": "src/",
+      "FinnWiel\\ShazzooNotify\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "FinnWiel\\ShazzooMobile\\ShazzooMobileServiceProvider"
+        "FinnWiel\\ShazzooNotify\\ShazzooNotifyServiceProvider"
       ]
     }
   },
